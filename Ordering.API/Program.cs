@@ -14,7 +14,7 @@ using RabbitMQ.Client;
 using System.Reflection;
 using Polly;
 using Serilog;
-using BuildingBlocks.Extensions;
+
 using BuildingBlocks.Observability;
 
 
@@ -29,7 +29,7 @@ builder.Host.UseSerilog();
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddCustomObservability();
+builder.Services.AddMicroserviceObservability(builder.Configuration);
 builder.Services.AddHealthChecks()
     .AddSqlServer(
         builder.Configuration.GetConnectionString("OrderingConnectionString")!,
@@ -77,7 +77,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCustomObservability();
 app.UseAuthorization();
 
 app.MapControllers();

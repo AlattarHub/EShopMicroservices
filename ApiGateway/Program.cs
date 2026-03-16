@@ -1,7 +1,7 @@
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Serilog;
-using BuildingBlocks.Extensions;
+
 using BuildingBlocks.Observability;
 
 Log.Logger = new LoggerConfiguration()
@@ -15,7 +15,7 @@ builder.Host.UseSerilog();
 builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange: true);
 
 builder.Services.AddControllers();
-builder.Services.AddCustomObservability();
+builder.Services.AddMicroserviceObservability(builder.Configuration);
 
 builder.Services.AddHealthChecksUI(setup =>
 {
@@ -45,7 +45,7 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseRouting();
-app.UseCorrelationId();
+app.UseCustomObservability();
 app.UseAuthorization();
 
 //app.MapHealthChecks("/health");

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
 using Serilog;
-using BuildingBlocks.Extensions;
+
 using BuildingBlocks.Observability;
 
 Log.Logger = new LoggerConfiguration()
@@ -21,7 +21,7 @@ builder.Host.UseSerilog();
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddCustomObservability();
+builder.Services.AddMicroserviceObservability(builder.Configuration);
 builder.Services.AddHealthChecks()
     .AddRedis(
         builder.Configuration["CacheSettings:ConnectionString"]!,
@@ -72,7 +72,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCorrelationId();
+app.UseCustomObservability();
 app.UseAuthorization();
 
 app.MapControllers();

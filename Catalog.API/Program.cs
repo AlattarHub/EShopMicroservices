@@ -4,7 +4,7 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using BuildingBlocks.Extensions;
+
 using Serilog;
 using BuildingBlocks.Observability;
 
@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
-builder.Services.AddCustomObservability();
+builder.Services.AddMicroserviceObservability(builder.Configuration);
 
 builder.Services.AddHealthChecks()
     .AddMongoDb(
@@ -46,7 +46,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCorrelationId();
+app.UseCustomObservability();
 app.UseAuthorization();
 
 app.MapControllers();
