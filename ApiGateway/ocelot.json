@@ -1,6 +1,5 @@
 {
   "Routes": [
-
     {
       "DownstreamPathTemplate": "/api/v1/Catalog",
       "DownstreamScheme": "http",

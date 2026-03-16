@@ -1,5 +1,8 @@
+using HealthChecks.UI.Client;
 using MassTransit;
 using MediatR;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
@@ -9,12 +12,24 @@ using Ordering.Application.Features.Orders.Commands;
 using Ordering.Infrastructure.Persistence;
 using RabbitMQ.Client;
 using System.Reflection;
+using Polly;
+using Serilog;
+using BuildingBlocks.Extensions;
+using BuildingBlocks.Observability;
 
+
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.Seq("http://seq:5341")
+    .CreateLogger();
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog();
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddCustomObservability();
 builder.Services.AddHealthChecks()
     .AddSqlServer(
         builder.Configuration.GetConnectionString("OrderingConnectionString")!,
@@ -66,21 +81,55 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
 
 // Migration عند بداية التشغيل عشان الداتا بيز ما تروحش مع بداية ال  Container
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+
+//    try
+//    {
+//        var context = services.GetRequiredService<OrderingContext>();
+//        context.Database.Migrate();
+//    }
+//    catch (Exception ex)
+//    {
+//        Console.WriteLine(ex.Message);
+//    }
+//}
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<OrderingContext>>();
+    var context = services.GetRequiredService<OrderingContext>();
 
     try
     {
-        var context = services.GetRequiredService<OrderingContext>();
-        context.Database.Migrate();
+        logger.LogInformation("Migrating database associated with context OrderingContext");
+
+        // استخدام Polly لعمل Retry في حال كان السيرفر لا يزال يبدأ
+        var retry = Policy.Handle<SqlException>()
+             .WaitAndRetry(
+                 retryCount: 5,
+                 sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                 onRetry: (exception, timeSpan, retry, ctx) =>
+                 {
+                     logger.LogWarning($"Retry {retry} due to {exception.Message}");
+                 });
+
+        retry.Execute(() => context.Database.Migrate());
+
+        logger.LogInformation("Migrated database associated with context OrderingContext");
     }
     catch (Exception ex)
     {
-        Console.WriteLine(ex.Message);
+        logger.LogError(ex, "An error occurred while migrating the database used on context OrderingContext");
     }
 }
-app.Run();
+    app.Run();

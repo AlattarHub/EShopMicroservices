@@ -1,11 +1,25 @@
 using Catalog.API.Data;
 using Catalog.API.Repositories;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using BuildingBlocks.Extensions;
+using Serilog;
+using BuildingBlocks.Observability;
+
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.Seq("http://seq:5341")
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
+builder.Services.AddCustomObservability();
+
 builder.Services.AddHealthChecks()
     .AddMongoDb(
         sp => new MongoClient(
@@ -32,12 +46,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCorrelationId();
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 
 app.Run();

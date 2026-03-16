@@ -1,6 +1,7 @@
 <Solution>
   <Project Path="ApiGateway/ApiGateway.csproj" Id="975908e6-b4a4-4262-bdaa-0ff8130c9ee3" />
   <Project Path="Basket.API/Basket.API.csproj" />
+  <Project Path="BuildingBlocks/BuildingBlocks.csproj" Id="7847c05d-91f6-43c8-8e9c-f570561342c2" />
   <Project Path="Catalog.API/Catalog.API.csproj" />
   <Project Path="Discount.API/Discount.API.csproj" />
   <Project Path="Discount.Grpc/Discount.Grpc.csproj" />

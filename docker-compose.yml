@@ -56,9 +56,18 @@ services:
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
+    hostname: rabbitmq
+    # الحل السحري: منع الحاوية من استخدام الملفات القديمة نهائياً
+    volumes:
+      # نقوم بربط مجلد البيانات فقط وليس المجلد الرئيسي
+      - rabbitmq_data:/var/lib/rabbitmq/mnesia
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=MY_SECRET_COOKIE
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"    # بورت البيانات (الذي تستخدمه الـ APIs حالياً)
+      - "15672:15672"  # بورت لوحة التحكم (الذي تحاول فتحه)
+    # إضافة هذا السطر لإجبار Docker على بدء الحاوية بمستخدم له صلاحيات واسعة داخل الحاوية فقط
+    user: "0:0" 
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
@@ -195,5 +204,20 @@ services:
       timeout: 5s
       retries: 5
 
+  seq:
+    image: datalust/seq:2024.3
+    container_name: seq
+    user: "0:0"
+    environment:
+    - ACCEPT_EULA=Y
+    ports:
+      - "5341:5341"
+      - "8081:80"
+    volumes:
+    - seq_data:/data
+
 volumes:
   sqlserverdata:
+  rabbitmq_data:
+  seq_data:
+  
