@@ -22,6 +22,7 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddMicroserviceObservability(builder.Configuration);
+builder.Host.UseSerilog();
 builder.Services.AddHealthChecks()
     .AddRedis(
         builder.Configuration["CacheSettings:ConnectionString"]!,

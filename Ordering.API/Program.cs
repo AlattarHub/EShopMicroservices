@@ -30,6 +30,7 @@ builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddMicroserviceObservability(builder.Configuration);
+builder.Host.UseSerilog();
 builder.Services.AddHealthChecks()
     .AddSqlServer(
         builder.Configuration.GetConnectionString("OrderingConnectionString")!,

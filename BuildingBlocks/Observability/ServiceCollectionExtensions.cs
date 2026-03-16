@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Serilog;
+using Serilog.Events;
+using Serilog.Enrichers.Span;
 
 namespace BuildingBlocks.Observability
 {
@@ -16,6 +15,13 @@ namespace BuildingBlocks.Observability
         IConfiguration configuration)
         {
             services.AddLogging();
+            Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .Enrich.FromLogContext()
+    .Enrich.WithSpan()
+    .WriteTo.Console()
+    .WriteTo.Seq("http://seq:5341")
+    .CreateLogger();
 
             services.AddHealthChecks();
 

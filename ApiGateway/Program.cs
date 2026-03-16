@@ -16,7 +16,7 @@ builder.Configuration.AddJsonFile("ocelot.json", optional: false, reloadOnChange
 
 builder.Services.AddControllers();
 builder.Services.AddMicroserviceObservability(builder.Configuration);
-
+builder.Host.UseSerilog();
 builder.Services.AddHealthChecksUI(setup =>
 {
     setup.AddHealthCheckEndpoint("Catalog API", "http://catalog-api:8080/health");
