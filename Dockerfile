@@ -16,6 +16,7 @@ COPY Ordering.Application/*.csproj Ordering.Application/
 COPY Ordering.Domain/*.csproj Ordering.Domain/
 COPY Ordering.Infrastructure/*.csproj Ordering.Infrastructure/
 COPY EventBus.Messages/*.csproj EventBus.Messages/
+COPY BuildingBlocks/BuildingBlocks.csproj BuildingBlocks/
 COPY ApiGateway/*.csproj ApiGateway/
 
 RUN dotnet restore
