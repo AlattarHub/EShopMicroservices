@@ -10,4 +10,5 @@
   <Project Path="Ordering.Application/Ordering.Application.csproj" Id="ada3cdbe-e7dc-4610-ba37-5029dae6723e" />
   <Project Path="Ordering.Domain/Ordering.Domain.csproj" Id="af61825a-7162-45bb-8d92-2189e0fe78fa" />
   <Project Path="Ordering.Infrastructure/Ordering.Infrastructure.csproj" Id="10c6b7c0-7c61-4946-b3f3-f5a6822c318a" />
+  <Project Path="Shopping.Aggregator/Shopping.Aggregator.csproj" Id="bec121b9-4e9e-4b8e-bf64-eb6237dc3f75" />
 </Solution>
