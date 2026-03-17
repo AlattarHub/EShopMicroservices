@@ -13,13 +13,13 @@ namespace Shopping.Aggregator.Services
         public async Task<BasketModel?> GetBasket(string userName)
         {
             return await _httpClient.GetFromJsonAsync<BasketModel>(
-                $"http://basket-api/api/v1/basket/{userName}");
+                $"http://basket-api:8080/api/v1/basket/{userName}");
         }
 
         public async Task<List<CatalogModel>?> GetCatalog()
         {
             return await _httpClient.GetFromJsonAsync<List<CatalogModel>>(
-                "http://catalog-api/api/v1/catalog");
+                "http://catalog-api:8080/api/v1/catalog");
         }
     }
 }

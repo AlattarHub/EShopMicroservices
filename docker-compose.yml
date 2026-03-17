@@ -227,7 +227,9 @@ services:
   shopping-aggregator:
    build:
     context: .
-    dockerfile: Shopping.Aggregator/Dockerfile
+    dockerfile: Dockerfile
+    args:
+      PROJECT: Shopping.Aggregator
    ports:
      - "8006:8080"
    depends_on:
