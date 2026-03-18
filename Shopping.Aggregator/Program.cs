@@ -12,6 +12,7 @@ builder.Services.AddMicroserviceObservability(builder.Configuration);
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<ShoppingService>();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<DiscountGrpcService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

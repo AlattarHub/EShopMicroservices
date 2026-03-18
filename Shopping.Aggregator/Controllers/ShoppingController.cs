@@ -17,17 +17,8 @@ namespace Shopping.Aggregator.Controllers
         [HttpGet("{userName}")]
         public async Task<IActionResult> GetShopping(string userName)
         {
-            var basket = await _service.GetBasket(userName);
-            var catalog = await _service.GetCatalog();
-
-            var response = new
-            {
-                UserName = userName,
-                Basket = basket,
-                Products = catalog
-            };
-
-            return Ok(response);
+            var result = await _service.GetShopping(userName);
+            return Ok(result);
         }
     }
 }

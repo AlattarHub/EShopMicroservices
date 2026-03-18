@@ -5,21 +5,38 @@ namespace Shopping.Aggregator.Services
     public class ShoppingService
     {
         private readonly HttpClient _httpClient;
+        private readonly DiscountGrpcService _discountService;
 
-        public ShoppingService(HttpClient httpClient)
+        public ShoppingService(HttpClient httpClient, DiscountGrpcService discountService)
         {
             _httpClient = httpClient;
+            _discountService = discountService;
         }
-        public async Task<BasketModel?> GetBasket(string userName)
+        public async Task<object> GetShopping(string userName)
         {
-            return await _httpClient.GetFromJsonAsync<BasketModel>(
+            var basket = await _httpClient.GetFromJsonAsync<BasketModel>(
                 $"http://basket-api:8080/api/v1/basket/{userName}");
-        }
 
-        public async Task<List<CatalogModel>?> GetCatalog()
-        {
-            return await _httpClient.GetFromJsonAsync<List<CatalogModel>>(
-                "http://catalog-api:8080/api/v1/catalog");
+            decimal totalPrice = 0;
+            decimal totalDiscount = 0;
+            if (basket != null)
+            {
+                foreach (var item in basket.Items)
+                {
+                    var coupon = await _discountService.GetDiscount(item.ProductName);
+
+                    totalPrice += item.Price;
+                    totalDiscount += coupon.Amount;
+                }
+            }
+            return new
+            {
+                UserName = userName,
+                Basket = basket,
+                TotalPrice = totalPrice,
+                TotalDiscount = totalDiscount,
+                FinalPrice = totalPrice - totalDiscount
+            };
         }
     }
 }
