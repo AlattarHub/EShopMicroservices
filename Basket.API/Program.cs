@@ -61,7 +61,7 @@ builder.Services.AddMassTransit(config =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
