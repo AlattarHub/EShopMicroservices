@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <Folder Include="Contracts\" />
-    <Folder Include="Features\Orders\Queries\" />
     <Folder Include="Interfaces\" />
     <Folder Include="Mappings\" />
   </ItemGroup>
