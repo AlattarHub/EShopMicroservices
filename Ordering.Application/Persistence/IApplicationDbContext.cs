@@ -9,6 +9,7 @@ namespace Ordering.Application.Contracts.Persistence
     public interface IApplicationDbContext
     {
         DbSet<Order> Orders { get; }
+        DbSet<OutboxMessage> OutboxMessages { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     }

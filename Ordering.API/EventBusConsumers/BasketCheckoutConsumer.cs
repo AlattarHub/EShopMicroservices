@@ -1,6 +1,7 @@
 ﻿using EventBus.Messages.Events;
 using MassTransit;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Ordering.Application.Features.Orders.Commands;
 
 namespace Ordering.API.EventBusConsumers
@@ -13,11 +14,13 @@ namespace Ordering.API.EventBusConsumers
         {
             _mediator = mediator;
         }
-
+        
         public async Task Consume(ConsumeContext<BasketCheckoutEvent> context)
         {
+            var eventId = context.MessageId?.ToString();
             var command = new CreateOrderCommand
             {
+                EventId = eventId!,
                 UserName = context.Message.UserName,
                 TotalPrice = context.Message.TotalPrice,
                 FirstName = context.Message.FirstName,
@@ -31,7 +34,8 @@ namespace Ordering.API.EventBusConsumers
                 CardNumber = context.Message.CardNumber,
                 Expiration = context.Message.Expiration,
                 CVV = context.Message.CVV,
-                PaymentMethod = context.Message.PaymentMethod
+                PaymentMethod = context.Message.PaymentMethod,
+                
             };
 
             await _mediator.Send(command);

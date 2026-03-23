@@ -11,14 +11,12 @@ namespace Basket.API.Controllers
     [Route("api/v1/[controller]")]
     public class BasketController : ControllerBase
     {
-        private readonly IBasketRepository _repository;
-        private readonly DiscountGrpcService _discountGrpcService;
+        private readonly IBasketRepository _repository;        
         private readonly IPublishEndpoint _publishEndpoint;
 
         public BasketController(IBasketRepository repository, DiscountGrpcService discountGrpcService,IPublishEndpoint publishEndpoint)
         {
-            _repository = repository;
-            _discountGrpcService = discountGrpcService;
+            _repository = repository;            
             _publishEndpoint = publishEndpoint;
         }
 
@@ -33,12 +31,6 @@ namespace Basket.API.Controllers
         [HttpPost]
         public async Task<ActionResult<ShoppingCart>> UpdateBasket([FromBody] ShoppingCart basket)
         {
-            foreach (var item in basket.Items)
-            {
-                var coupon = await _discountGrpcService.GetDiscount(item.ProductName);
-                item.Price -= coupon.Amount;
-            }
-
             return Ok(await _repository.UpdateBasket(basket));
         }
 
@@ -52,9 +44,38 @@ namespace Basket.API.Controllers
         [HttpPost("checkout")]
         public async Task<IActionResult> Checkout([FromBody] BasketCheckoutEvent basketCheckout)
         {
-            await _publishEndpoint.Publish(basketCheckout);
+            var basket = await _repository.GetBasket(basketCheckout.UserName);
 
-            return Ok("Checkout Event Published");
+            if (basket == null)
+                return BadRequest();
+
+            var eventMessage = new BasketCheckoutEvent
+            {
+                UserName = basketCheckout.UserName,
+                TotalPrice = basket.TotalPrice,
+
+                FirstName = basketCheckout.FirstName,
+                LastName = basketCheckout.LastName,
+                EmailAddress = basketCheckout.EmailAddress,
+
+                AddressLine = basketCheckout.AddressLine,
+                Country = basketCheckout.Country,
+                State = basketCheckout.State,
+                ZipCode = basketCheckout.ZipCode,
+
+                CardName = basketCheckout.CardName,
+                CardNumber = basketCheckout.CardNumber,
+                Expiration = basketCheckout.Expiration,
+                CVV = basketCheckout.CVV,
+                PaymentMethod = basketCheckout.PaymentMethod
+            };
+
+            await _publishEndpoint.Publish(eventMessage);
+
+            await _repository.DeleteBasket(basketCheckout.UserName);
+
+            return Accepted();
+
         }
     }
 }

@@ -15,5 +15,18 @@ namespace Ordering.Infrastructure.Persistence
         }
 
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OutboxMessage> OutboxMessages { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Order>()
+                .Property(o => o.TotalPrice)
+                .HasPrecision(18, 2);
+            modelBuilder.Entity<Order>()
+                .HasIndex(o => o.EventId)
+                .IsUnique();
+        }
     }
 }

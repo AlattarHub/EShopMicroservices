@@ -44,7 +44,7 @@ builder.Services.AddScoped<DiscountGrpcService>();
 
 builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(o =>
 {
-    o.Address = new Uri("http://discount-grpc:7167");
+    o.Address = new Uri("http://discount-grpc:8080");
 });
 
 builder.Services.AddMassTransit(config =>

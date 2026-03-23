@@ -7,6 +7,7 @@ namespace Ordering.Application.Features.Orders.Commands
 {
     public class CreateOrderCommand : IRequest<int>
     {
+        public string EventId { get; set; } = default!;
         public string UserName { get; set; }
 
         public decimal TotalPrice { get; set; }

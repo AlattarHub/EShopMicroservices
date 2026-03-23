@@ -1,3 +1,4 @@
+using BuildingBlocks.Observability;
 using HealthChecks.UI.Client;
 using MassTransit;
 using MediatR;
@@ -6,16 +7,15 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Identity.Client;
+using Ordering.API.BackgroundServices;
 using Ordering.API.EventBusConsumers;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Application.Features.Orders.Commands;
 using Ordering.Infrastructure.Persistence;
-using RabbitMQ.Client;
-using System.Reflection;
 using Polly;
+using RabbitMQ.Client;
 using Serilog;
-
-using BuildingBlocks.Observability;
+using System.Reflection;
 
 
 Log.Logger = new LoggerConfiguration()
@@ -48,7 +48,7 @@ builder.Services.AddDbContext<OrderingContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("OrderingConnectionString")));
 builder.Services.AddScoped<IApplicationDbContext>(provider =>
     provider.GetService<OrderingContext>());
-
+builder.Services.AddHostedService<OutboxProcessor>();
 builder.Services.AddMassTransit(config =>
 {
     config.AddConsumer<BasketCheckoutConsumer>();
@@ -64,6 +64,12 @@ builder.Services.AddMassTransit(config =>
         cfg.ReceiveEndpoint("basket-checkout-queue", c =>
         {
             c.ConfigureConsumer<BasketCheckoutConsumer>(ctx);
+
+            // 🔥 Retry Policy
+            c.UseMessageRetry(r =>
+            {
+                r.Interval(3, TimeSpan.FromSeconds(5));
+            });
         });
     });
 });
