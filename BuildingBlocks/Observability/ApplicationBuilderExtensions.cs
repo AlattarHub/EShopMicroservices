@@ -13,7 +13,7 @@ namespace BuildingBlocks.Observability
         {
             app.UseMiddleware<CorrelationIdMiddleware>();
 
-            app.UseHealthChecks("/health");
+            //app.UseHealthChecks("/health");
 
             return app;
         }

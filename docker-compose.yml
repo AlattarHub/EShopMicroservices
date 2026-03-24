@@ -52,28 +52,27 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     hostname: rabbitmq
-    # الحل السحري: منع الحاوية من استخدام الملفات القديمة نهائياً
     volumes:
-      # نقوم بربط مجلد البيانات فقط وليس المجلد الرئيسي
       - rabbitmq_data:/var/lib/rabbitmq/mnesia
     environment:
       - RABBITMQ_ERLANG_COOKIE=MY_SECRET_COOKIE
+      # السطرين الجايين هما السر
+      - RABBITMQ_NODENAME=rabbit@localhost
+      - HOME=/var/lib/rabbitmq/mnesia # تغيير مسار الـ Home لمسار إحنا ضامنين صلاحياته
     ports:
       - "5672:5672"    # بورت البيانات (الذي تستخدمه الـ APIs حالياً)
       - "15672:15672"  # بورت لوحة التحكم (الذي تحاول فتحه)
-    # إضافة هذا السطر لإجبار Docker على بدء الحاوية بمستخدم له صلاحيات واسعة داخل الحاوية فقط
     user: "0:0" 
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s #30 second before starting health checks to give RabbitMQ enough time to initialize
+      start_period: 60s # زودنا فترة السماح لـ 60 ثانية عشان ندي فرصة للويندوز يخلص الـ I/O بتاعه
 
   catalog-api:
     build:
