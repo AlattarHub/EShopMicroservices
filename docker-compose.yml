@@ -73,6 +73,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s #30 second before starting health checks to give RabbitMQ enough time to initialize
 
   catalog-api:
     build:

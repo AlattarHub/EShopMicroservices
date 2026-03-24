@@ -1,8 +1,9 @@
+using BuildingBlocks.Observability;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Serilog;
-
-using BuildingBlocks.Observability;
 
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
@@ -48,21 +49,21 @@ app.UseRouting();
 app.UseCustomObservability();
 app.UseAuthorization();
 
-//app.MapHealthChecks("/health");
-//app.MapHealthChecksUI(options =>
-//{
-//    options.UIPath = "/healthchecks-ui";
-//});
 
 app.UseEndpoints(endpoints =>
 {
-    endpoints.MapHealthChecks("/health");
+endpoints.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
     endpoints.MapHealthChecksUI(options =>
     {
         options.UIPath = "/healthchecks-ui";
+        options.ApiPath = "/healthchecks-api";
     });
     endpoints.MapControllers();
 });
+
 
 await app.UseOcelot();
 
