@@ -6,6 +6,7 @@
   <Project Path="Discount.API/Discount.API.csproj" />
   <Project Path="Discount.Grpc/Discount.Grpc.csproj" />
   <Project Path="EventBus.Messages/EventBus.Messages.csproj" Id="ab2195f8-fe8f-47d3-932a-2bce7ac752de" />
+  <Project Path="Identity.API/Identity.API.csproj" Id="4e988a0c-3c08-4f3a-8dd8-65210ec9fe28" />
   <Project Path="Ordering.API/Ordering.API.csproj" Id="b7d6e147-8563-4b92-8c68-ade0e094b3c6" />
   <Project Path="Ordering.Application/Ordering.Application.csproj" Id="ada3cdbe-e7dc-4610-ba37-5029dae6723e" />
   <Project Path="Ordering.Domain/Ordering.Domain.csproj" Id="af61825a-7162-45bb-8d92-2189e0fe78fa" />
